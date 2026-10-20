@@ -55,6 +55,10 @@ Only a governed brief with explicit human/Manager authorization may use a non-co
 - Use normal permission prompts for approval-path checks and tasks that require native prompts. For a human-selected smooth unattended run, Claude Code may use session Auto mode; Agy may use `--sandbox --dangerously-skip-permissions` only in a task-specific disposable worktree with no unrelated changes or secrets, and only after confirming the sandbox is active. Agy's flag approves every tool call, so it cannot prove native approval; never use either automatic mode after a denial or sandbox failure.
 - Codex must never use `spawn_agent`, internal subagents/teams, child threads, nested CLI, or any other delegation to satisfy a Herdr role.
 
+## Tool awareness, inventory and context compaction
+
+Before relying on any named integration (Serena, Playwright, headroom, project-graph caches), read [Tool availability and compaction recovery](../herdr-engineering-loop/references/tool-availability.md): inventory what the harness actually exposes, fail closed on absent tools, prefer symbol-level tools (Serena) over grep for code navigation/edits — grep stays for docs, config and cross-repo text — and never drive a browser from this role. After any context compaction, re-orient from your durable files (role packet, `TASK.md`, live ledger, `READY.md`/`REPORT.md`) before acting, and never replay a signal that may already be receipted.
+
 ## Cancellation and completion
 
 In Governed Mode, preserve partial work, record `PARTIAL/CANCELLED`, send `CANCEL_ACK` once when possible, and do not restart automatically. A cancelled attempt is not accepted work.

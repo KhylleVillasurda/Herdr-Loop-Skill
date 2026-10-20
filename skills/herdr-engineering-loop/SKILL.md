@@ -100,7 +100,8 @@ For a direct one-off assignment, follow [Standalone Mode](../herdr-worker/SKILL.
    py -3 .\tools\role_bind.py --config .\roles.json --repo <repo-path>
    ```
    This generates `<repo>/.herdr-loop/<run-id>/` containing `ROSTER.md`, `ACTIVATE.md`, `ACTIVATION.json`, `role-packets/`, and initializes the selected state backend.
-3. **Dispatch Initial Roles:**
+3. **Record the environment inventory (optional but recommended):** create `<run-id>/ENVIRONMENT.md` in the run directory and list, per agent kind, which integrations this machine's harness actually exposes (e.g. Serena/Playwright/headroom/Herdr skill), so role agents can use [Tool availability and compaction recovery](references/tool-availability.md) without guessing. Tools left unlisted are treated as absent by every role.
+4. **Dispatch Initial Roles:**
    ```powershell
    # Activate Manager and Delegator first:
    py -3 .\tools\activate_roles.py --run-dir <run-dir> --roles manager,delegator
@@ -242,3 +243,9 @@ To cancel an active run safely:
 2. **Request Clean Halt:** Prompt active agents to stop tools and preserve uncommitted diffs (`CANCEL_RUN` -> `CANCEL_ACK`).
 3. **Verify Quiescence:** Check `herdr pane list` to ensure all child processes have ceased execution.
 4. **Preserve Resources:** Keep human-owned panes open. Preserve dirty worktrees for operator triage. Never claim cancelled work was accepted.
+
+---
+
+## 11. Tool Inventory Duty and Compaction Recovery
+
+Follow [Tool availability and compaction recovery](references/tool-availability.md) yourself, and apply it to every run you bootstrap: confirm what each assigned agent's harness actually exposes before binding that integration into any packet, complete the run's `ENVIRONMENT.md` inventory (§5) so role agents inherit an observed — not assumed — tool list, and never list an integration (Serena, Playwright, headroom) you have not verified is attached. After any context compaction, re-read `ROSTER.md`, `SESSION.md` and any recovery journal before resuming coordination, and ask the human to re-confirm any partially completed setup step rather than replaying receipts from memory.

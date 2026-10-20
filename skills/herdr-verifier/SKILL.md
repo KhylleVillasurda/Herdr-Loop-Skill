@@ -55,6 +55,10 @@ A Claude Sonnet 5.5 `herdr-critic` agent is read-only and separate from this tes
 - After a documentation-only commit advances integration HEAD, preserve earlier verification at its original SHA. Report changed paths and request Manager/Delegator decision on evidence applicability; do not rerun an expensive suite solely because HEAD advanced if the authorized plan explicitly permits carrying it forward. New-head CI remains a separate gate and must be observed.
 - Keep reused verification resources intact unless their disposal was explicitly approved; avoid unnecessary start/stop churn. Human-owned test panes are not yours to close.
 
+## Tool awareness, inventory and context compaction
+
+Before relying on any named integration (Serena, Playwright, headroom, project-graph caches), read [Tool availability and compaction recovery](../herdr-engineering-loop/references/tool-availability.md): inventory what the harness actually exposes and fail closed on absent tools. This role may use symbol-level tools (Serena) to inspect the integrated checkout, and — only when the `VERIFY.md` brief explicitly lists a browser check **and** the inventory really offers Playwright — may drive a browser against the approved running build as an evidence-backed UI check; never edit code or install/seed anything from a browser session. After any context compaction, re-orient from your durable files (role packet, `VERIFY.md`, live ledger, your verification report) before acting, and never replay `ROLE_READY`/`VERIFY_READY` that may already be receipted.
+
 ## Completion
 
 Your success is a **verifiable report**, not a green label. Incomplete or skipped checks are first-class results. Do not declare the feature or PR accepted; return only `VERIFIED | NEEDS_FIX | ENV_BLOCKED | INCOMPLETE` with proof.

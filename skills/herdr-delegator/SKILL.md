@@ -85,6 +85,10 @@ An optional **Critic** (Claude Sonnet 5.5 by default) is a distinct read-only He
 - Distinguish `CONTENT_ACCEPTED_VERIFICATION_PENDING` from `ACCEPTED`. Do not send routine Manager updates: escalate only decisions, material failures or requested checkpoints and send `REPORT_READY` when review is actionable. A successful remote CI check may be recorded without a gratuitous Manager prompt.
 - Before deleting scratch data or closing workspaces, confirm run ownership and a verified safe cleanup boundary. Human-owned panes, particularly an explicitly provided verifier pane, remain open. Record successful cleanup; keep source branches unless explicitly authorized to delete.
 
+## Tool awareness and context compaction
+
+Read [Tool availability and compaction recovery](../herdr-engineering-loop/references/tool-availability.md) before session-heavy work: inventory what the harness actually exposes and fail closed on absent tools; never invent a wrapper for an integration that is not attached. Coordination runs on durable Markdown receipts, not memory: after any context compaction, re-read your role packet, `SESSION.md`, the active briefs and recent decisions/exceptions before dispatching or integrating, and never re-send `ROLE_READY`/`TASK_START`/`REPORT_READY` acknowledgments that may already be receipted.
+
 ## Cancellation and restart
 
 On an authorized cancellation, first record who stopped the run and mark `CANCELLING` in `SESSION.md`; stop scheduling, send a single `CANCEL_RUN` to each run-owned active agent, and interrupt only run-owned Herdr processes when appropriate. Never infer that a submitted prompt stopped execution. Confirm actual process state; preserve dirty worktrees, source commits, partial reports, and verification evidence; release locks only after related processes stop. Never close a human-owned pane or delete branches by default. Mark `CANCELLED` only when accounted for, otherwise `CANCELLATION_BLOCKED`. A new execution grant and recovery reconciliation are required to resume. Read [Run integrity](references/run-integrity.md).

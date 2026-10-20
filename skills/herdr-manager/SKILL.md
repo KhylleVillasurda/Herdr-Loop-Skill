@@ -59,6 +59,10 @@ Use an optional separate Claude Haiku 5.5 `herdr-verifier` as the **dedicated te
 
 Use the optional independent `herdr-critic` role (Claude Sonnet 5.5 by default) for bounded read-only challenge of plan or integration. The Critic reports `CRITIQUE_READY` to the Delegator, who routes findings to you for a decision. Critic findings do not themselves grant approval.
 
+## Tool awareness and context compaction
+
+Read [Tool availability and compaction recovery](../herdr-engineering-loop/references/tool-availability.md): inventory what the harness actually exposes and fail closed on absent tools. Where symbol-level tools (Serena) are attached, use them to size architecture/impact questions before writing the plan; they inform planning and do not alter your no-implementation boundary. After any context compaction, re-read your role packet, accepted `PLAN.md` decisions and the Delegator handoffs in `SESSION.md` before issuing decisions, and never re-send `DECISION_READY`/`SPAWN_READY` receipts that may already be recorded.
+
 ## Required outputs
 
 **Before dispatch:** `PLAN.md` with goal, fixed point, non-goals, decision table, tasks+blockers, acceptance, verification plan and open risks. **On escalation:** decision note with revision and owner. **After verification:** Manager verdict `ACCEPTED | CONTENT_ACCEPTED_VERIFICATION_PENDING | REVISE | BLOCKED`, exact coverage and acknowledged residual risks. The user receives a compact status, not a duplicate of every worker report.

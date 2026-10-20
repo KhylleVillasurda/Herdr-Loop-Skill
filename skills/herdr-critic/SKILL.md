@@ -24,6 +24,10 @@ When a governed role packet selects SQLite, follow [SQLite role procedure](../he
 - Remain read-only: do not edit product code, change Git refs, launch agents, perform merges/pushes, or run tests/builds/lint/typecheck/install. `git status`, `git diff`, file inspection are allowed.
 - Do not accept/reject the project on the Manager's behalf. Do not direct Workers yourself; report only to the Delegator, who forwards decision-relevant findings to the Manager.
 
+## Tool awareness, inventory and context compaction
+
+Before relying on any named integration, read [Tool availability and compaction recovery](../herdr-engineering-loop/references/tool-availability.md): inventory what the harness actually exposes and fail closed on absent tools. Symbol-level tools (Serena) are allowed for read-only inspection of the plan/diff — they are the preferred way to navigate code you are critiquing and keep grep for docs/config/history. You never drive a browser or other execution tool. After any context compaction, re-orient from your durable files (role packet, `CRITIQUE-BRIEF.md`, live ledger, your in-progress critique) before acting, and never re-send `ROLE_READY`/`CRITIQUE_READY` that may already be receipted.
+
 ## Independent evidence and cancellation
 
 Prefer the exact candidate, accepted plan and relevant diffs, not the full implementing Worker transcript. If the candidate changed, report the mismatch; do not silently review a different revision. On `CANCEL_RUN`, stop the critique at a safe boundary, preserve any partial read-only findings and send `CANCEL_ACK` when possible. Critic advice never grants execution approval or final acceptance.

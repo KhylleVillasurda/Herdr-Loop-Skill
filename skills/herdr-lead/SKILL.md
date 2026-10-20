@@ -53,6 +53,10 @@ Read [Signal and Receipt Contract](references/signals.md) and [Access-Denied Pre
 
 When the human cancels the run (`CANCEL_RUN`), follow the Delegator's cancellation procedure: stop dispatching, record CANCELLING in SESSION.md, send workers the cancel signal, observe their processes actually stop, preserve dirty worktrees and evidence, never close human-owned panes, and report CANCELLED or CANCELLATION_BLOCKED with what is still running.
 
+## Tool awareness and context compaction
+
+Read [Tool availability and compaction recovery](../herdr-engineering-loop/references/tool-availability.md): inventory what the harness actually exposes and fail closed on absent tools; never invent a wrapper for an integration that is not attached. As the single planning + integration agent you bear both halves of the durable-state rule: after any context compaction, re-read your role packets (`herdr-manager` + `herdr-delegator` outputs), `PLAN.md`, decision notes and `SESSION.md` before dispatching or integrating, and never re-send `ROLE_READY`/`TASK_START`/decision envelopes that may already be receipted — confirm observed state with the human when uncertain.
+
 ## Talking to the human
 
 Use descriptive slice titles and observable outcomes ("Fix login redirect: integrated, checks passing"), never bare `T01` IDs. Report only plan approval requests, decisions, blockers and finished slices. Do not say "complete" until the human has accepted and current-head gates pass.
