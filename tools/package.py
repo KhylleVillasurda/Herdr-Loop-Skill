@@ -104,7 +104,7 @@ def validate_archive_members(zip_path: Path) -> list[str]:
 
 def build_role_pack_archive(output_path: Path) -> None:
     """Builds the complete herdr-role-pack ZIP archive deterministically."""
-    exclude_dirs = {"__pycache__", ".git", ".herdr-loop", ".sqlite-tracer", "tests"}
+    exclude_dirs = {"__pycache__", ".git", ".herdr-loop", ".sqlite-tracer", "tests", "target"}
     exclude_files = {".DS_Store", "Thumbs.db"}
 
     output_path.parent.mkdir(parents=True, exist_ok=True)

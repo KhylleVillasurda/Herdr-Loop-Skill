@@ -3,6 +3,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Rust build cache (tools/herdrt)
+tools/herdrt/target/
+
+# Local coding-agent session state
+.serena/
+
 # Local Herdr runs and disposable tracers
 .herdr-loop/
 .sqlite-tracer/

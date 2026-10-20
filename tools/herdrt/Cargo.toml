@@ -1,0 +1,14 @@
+[package]
+name = "herdrt"
+version = "2.10.0" # keep in lockstep with manifest.json
+edition = "2021"
+description = "Rust port of the Herdr Role Pack tools (tools/*.py); Python tools remain the reference during migration"
+
+[dependencies]
+serde_json = { version = "1", features = ["preserve_order"] }
+regex = "1"
+sha2 = "0.10"
+ureq = { version = "2", default-features = false, features = ["tls"] }
+zip = { version = "2", default-features = false, features = ["deflate"] }
+tempfile = "3"
+wait-timeout = "0.2"
