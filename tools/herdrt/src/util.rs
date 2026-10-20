@@ -272,6 +272,55 @@ pub fn elapsed(start: Instant) -> Duration {
     start.elapsed()
 }
 
+/// Python `Path.resolve(strict=True)`, including ntpath's verbatim-prefix strip:
+/// `ntpath.realpath` drops the `\\?\` that Win32 returns unless the input already
+/// carried it (ntpath.py "strip off that prefix unless it was already provided").
+pub fn resolve_existing(input: &Path) -> ToolResult<PathBuf> {
+    let canon = input.canonicalize().map_err(|e| e.to_string())?;
+    Ok(strip_verbatim(input, canon))
+}
+
+/// Python `Path.resolve()` (non-strict): nonexistent paths resolve to their
+/// absolute lexical form instead of raising.
+pub fn resolve_lenient(input: &Path) -> PathBuf {
+    match input.canonicalize() {
+        Ok(canon) => strip_verbatim(input, canon),
+        Err(_) => strip_verbatim(input, absolute_path(input)),
+    }
+}
+
+fn absolute_path(input: &Path) -> PathBuf {
+    if input.is_absolute() {
+        input.to_path_buf()
+    } else {
+        std::env::current_dir().unwrap_or_default().join(input)
+    }
+}
+
+/// Drops the Windows verbatim prefix NTFS canonicalization adds, matching ntpath.
+/// Kept cross-platform so it stays unit-testable; a no-op without the prefix.
+pub fn strip_verbatim(input: &Path, canon: PathBuf) -> PathBuf {
+    let original = input.to_string_lossy();
+    if original.starts_with(r"\\?\") || original.starts_with("//?/") {
+        return canon;  // ntpath keeps the prefix when the caller supplied it
+    }
+    let s = canon.to_string_lossy();
+    let stripped: String = if let Some(rest) = s.strip_prefix(r"\\?\UNC\") {
+        format!(r"\\{rest}")
+    } else if let Some(rest) = s.strip_prefix(r"\\?\") {
+        rest.to_string()
+    } else {
+        return canon;
+    };
+    // ntpath only strips when the plain form still resolves: it cannot for paths
+    // beyond MAX_PATH (or containing characters illegal in plain paths).
+    if stripped.chars().count() >= 260 || stripped.contains('?') {
+        canon
+    } else {
+        PathBuf::from(stripped)
+    }
+}
+
 /// Python str(v) for JSON scalars as used in f-string/config coercion
 /// (None/True/False, decimal ints, floats with e±NN exponents).
 /// shortcut: composite values (arrays/objects) are rendered via py_repr-like
@@ -319,5 +368,25 @@ mod py_json_tests {
         assert_eq!(py_str(&v("true")), "True");
         assert_eq!(py_str(&v("12")), "12");
         assert_eq!(py_str(&v("\"x\"")), "x");
+    }
+
+    #[test]
+    fn verbatim_prefix_strip_matches_ntpath() {
+        let canon = PathBuf::from(r"\\?\Z:\tmp\run");
+        // plain input: prefix dropped (ntpath.realpath behaviour)
+        assert_eq!(strip_verbatim(Path::new("Z:/tmp/run"), canon.clone()),
+                   PathBuf::from(r"Z:\tmp\run"));
+        // caller-supplied prefix: kept
+        assert_eq!(strip_verbatim(Path::new(r"\\?\Z:\tmp\run"), canon.clone()), canon);
+        // UNC surgery
+        assert_eq!(strip_verbatim(Path::new(r"\\server\share"),
+                                  PathBuf::from(r"\\?\UNC\server\share")),
+                   PathBuf::from(r"\\server\share"));
+        // unix paths untouched
+        let unix = PathBuf::from("/tmp/run");
+        assert_eq!(strip_verbatim(Path::new("/tmp/run"), unix.clone()), unix);
+        // beyond MAX_PATH: plain form would not resolve, prefix kept
+        let long = PathBuf::from(format!(r"\\?\Z:\{}", "a".repeat(300)));
+        assert_eq!(strip_verbatim(Path::new("Z:/long"), long.clone()), long);
     }
 }

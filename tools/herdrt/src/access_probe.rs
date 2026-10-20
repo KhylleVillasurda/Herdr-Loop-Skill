@@ -50,7 +50,9 @@ pub fn inspect(workspace: &std::path::Path, agent: Option<&str>, pane: Option<&s
     if workspace.is_symlink() {
         return Err("--workspace must not be a symlink".into());
     }
-    let root = workspace.canonicalize().map_err(|e| e.to_string())?;
+    let root = workspace.canonicalize()
+        .map(|c| crate::util::strip_verbatim(&workspace, c))
+        .map_err(|e| e.to_string())?;
     if !root.is_dir() {
         return Err("--workspace must be a directory".into());
     }

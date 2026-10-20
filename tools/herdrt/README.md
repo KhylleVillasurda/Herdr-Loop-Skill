@@ -40,6 +40,9 @@ Shared helpers:
   bytes differ and there is no crate option to suppress the type bit.
 - **Windows/Linux:** every platform split (`PATHEXT`, spawn-error classification, local timestamps via `GetLocalTime` on Windows /
   `localtime_r` on unix, chmod preservation no-op on Windows) has explicit or no-op branches on both sides.
+  Windows builds are verified with `cargo build --target x86_64-pc-windows-gnu` (mingw-w64) and exercised under Wine:
+  path handling matches Python's `Path.resolve()` semantics because Rust's `\\?\` verbatim prefix is stripped like
+  `ntpath.realpath` does (paths ≥ MAX_PATH keep the prefix, as in Python).
 
 ## Parity testing
 

@@ -190,9 +190,8 @@ fn run_cli(session: Option<&Path>, run_dir: Option<&Path>, include_internal_ids:
 }
 
 fn absolute(p: &Path) -> PathBuf {
-    if p.is_absolute() { p.to_path_buf() } else {
-        std::env::current_dir().unwrap_or_else(|_| PathBuf::from(".")).join(p)
-    }
+    // python: Path.resolve() (non-strict) — follows symlinks, strips \\?\
+    util::resolve_lenient(p)
 }
 
 #[cfg(test)]

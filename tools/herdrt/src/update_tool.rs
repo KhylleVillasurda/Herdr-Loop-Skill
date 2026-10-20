@@ -413,7 +413,9 @@ pub fn backup_slots(backup_root: &Path, slots: &[(String, PathBuf)]) -> ToolResu
     let mut items = Map::new();
     for (key, target) in slots {
         copy_tree(target, &backup_dir.join(key))?;
-        let resolved = target.canonicalize().unwrap_or_else(|_| target.clone());
+        let resolved = target.canonicalize()
+            .map(|c| util::strip_verbatim(target, c))
+            .unwrap_or_else(|_| target.clone());
         items.insert(
             key.clone(),
             json!({

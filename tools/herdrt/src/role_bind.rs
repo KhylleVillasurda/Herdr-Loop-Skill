@@ -1486,6 +1486,7 @@ fn run(argv: &[String]) -> ToolResult<()> {
 
     // repo = args.repo.expanduser().resolve(strict=True)
     let repo = std::fs::canonicalize(eos_expanduser(&args.repo.to_string_lossy()))
+        .map(|c| util::strip_verbatim(Path::new(&eos_expanduser(&args.repo.to_string_lossy())), c))
         .map_err(|e| e.to_string())?;
     if !repo.is_dir() {
         return Err("--repo must refer to an existing directory".into());
@@ -1530,7 +1531,9 @@ fn run(argv: &[String]) -> ToolResult<()> {
             let assigned = get(&agent.raw, "worktree").cloned().unwrap_or(Value::Null);
             let workspace = if truthy(&assigned) {
                 let ws = eos_expanduser(assigned.as_str().unwrap_or(""));
-                std::fs::canonicalize(&ws).map_err(|e| e.to_string())?
+                std::fs::canonicalize(&ws)
+                    .map(|c| util::strip_verbatim(Path::new(&ws), c))
+                    .map_err(|e| e.to_string())?
             } else {
                 repo.clone()
             };

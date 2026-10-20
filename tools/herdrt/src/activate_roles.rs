@@ -513,6 +513,7 @@ fn read_manifest(run_dir: &Path) -> ToolResult<Value> {
 fn run(args: &Args) -> ToolResult<i32> {
     let expanded = expanduser(&args.run_dir);
     let run_dir: PathBuf = Path::new(&expanded).canonicalize()
+        .map(|c| util::strip_verbatim(Path::new(&expanded), c))
         .map_err(|e| io_py_err(&e, Path::new(&expanded)))?;
 
     let check_generated_by = |manifest: &Value| -> ToolResult<()> {
@@ -596,6 +597,7 @@ fn run(args: &Args) -> ToolResult<i32> {
             let wt_text = req(entry, "worktree")?.as_str().unwrap_or("");
             let expanded_wt = expanduser(wt_text);
             let worktree = Path::new(&expanded_wt).canonicalize()
+                .map(|c| util::strip_verbatim(Path::new(&expanded_wt), c))
                 .map_err(|e| io_py_err(&e, Path::new(&expanded_wt)))?;
             for file in [worktree.join(".herdr-loop").join("ROLE.md"),
                          worktree.join(".herdr-loop").join("TASK.md")] {
