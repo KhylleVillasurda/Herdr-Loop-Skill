@@ -7,8 +7,8 @@ this session**, **which to prefer**, and **how to resume after context compressi
 ## 1. Inventory first, assume never
 
 Model training data will happily describe integrations that are not attached to this
-session. Before relying on any named integration (Serena, Playwright, headroom, Herdr,
-project "graph" snapshots, etc.):
+session. Before relying on any named integration (Serena, Playwright, headroom, GitHub,
+Herdr, project "graph" snapshots, etc.):
 
 1. Enumerate what the active harness actually exposes: in OpenCode use the MCP resource
    list / tool search; on other CLIs use each tool's own catalog when offered. When in
@@ -63,7 +63,27 @@ A browser agent is a **test instrument**, not an ordinary tool:
 - Critic/Worker/Manager/Delegator roles do not use browsers (Worker: no tests, no runs;
   Critic: no execution; browser work is execution).
 
-## 5. After context compaction: re-orient before acting
+## 5. Remote repository APIs (e.g. GitHub MCP) — reads are context, writes are governed
+
+A remote-repository MCP is a **shared-world side effect channel**, not a local tool:
+
+- **Reads** (PR/issue metadata, diffs, comments, CI run status) are allowed wherever the
+  role needs context — Manager sizing a plan, Critic reviewing a PR diff, Verifier
+  reading CI status. Always cite the exact commit SHA or run ID, never "latest".
+- **Writes** — pushing, opening/updating/merging PRs, posting comments or reviews,
+  labels, closing issues — are external side effects that require **explicit human
+  authorization recorded in the ledger**. Only the Delegator (or Lead in lead mode)
+  executes them; Worker, Critic and Verifier never push, PR, comment or merge. A remote
+  write is never a substitute for a required local gate.
+- **Remote CI ≠ local evidence.** CI results are tracked separately (as the run rules
+  already state); never present a green remote check as the current-SHA local
+  verification the gate requires, and vice versa.
+- **Secrets discipline:** never paste tokens or credentials into prompts, packets,
+  reports or evidence files, and never use a repository API to fetch credentials.
+- If the MCP is absent, fail closed and work through local `git`/files instead — never
+  invent a wrapper or retry after the inventory shows it missing.
+
+## 6. After context compaction: re-orient before acting
 
 Compaction can silently drop role packet details, handoffs, signal recipients and
 recent receipts. After any compaction or context refresh:
